@@ -71,7 +71,9 @@ import Loading from '../components/Loding';
         });
 
         setIsLoading(false);
-      }
+      } else {
+        throw new Error("לא מצא סקר");
+      } 
     })
 
   }, []);
@@ -173,20 +175,16 @@ import Loading from '../components/Loding';
               saveToSessionStorae(StorageDoneMainSurveyKey, true);
               navToDonePage();
             } else {
-              throw new Error("can't save data");
+              throw new Error("לא יכול לשמור מידע");
             }
           })
         } else {
-          throw new Error("Can't save data");
+          throw new Error("לא יכול לשמור מידע");
         }
       });    
     } else {
-      throw new Error("Can't save data");
+      throw new Error("לא יכול לשמור מידע");
     }
-    console.log(personalData);
-    console.log(prevSurveyResults);
-    console.log(mainSurveyResults);
-
   }
 
   // go to done page 
