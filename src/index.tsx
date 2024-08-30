@@ -30,7 +30,7 @@ export const router = createBrowserRouter([
   },
   {
     path:"/done",
-    element:<DonePage  />
+    element:<ErrorBoundary><DonePage  /></ErrorBoundary>
   }
 ]);
 

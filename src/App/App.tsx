@@ -69,11 +69,13 @@ import Loading from '../components/Loding';
             answer: null
           }]);
         });
-
         setIsLoading(false);
       } else {
+        setIsLoading(false);
         throw new Error("לא מצא סקר");
       } 
+    }).catch(error=>{
+      throw new Error("לא מצא סקר");
     })
 
   }, []);

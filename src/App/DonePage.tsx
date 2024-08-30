@@ -19,7 +19,6 @@ export default function DonePage() {
     const [message, setMessage] = React.useState<string>("");
 
     React.useEffect(()=>{
-      console.log(location);
         if(location && location.state && location.state.type){
           setType(location.state.type);
           if(location.state.message) {

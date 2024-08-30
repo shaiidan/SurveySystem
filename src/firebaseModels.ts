@@ -10,17 +10,20 @@ export type UrlType = {
     data: string;
 } 
 
+export type ChooserAnswerType = { id:number, order:number , result:string };
+export type SliderAnswerType = {titleStart:string, titleEnd:string,minValue:number, maxValue:number , defaultValue:number | undefined};
+
 // sub colection in survey collection
 export class SurveyQuestion {
     queDocId!:string; // doc 
     URLs!: UrlType [];
     descriptionTop!:string;
     descriptionBottom!:string;
-    group!:number;
+    group:number = 0;
     isRequire :boolean = true;
     type!:number;
-    chooserAnswers!: { id:number, order:number , result:string }[] | null;
-    sliderAnswer!: {titleStart:string, titleEnd:string,minValue:number, maxValue:number , defaultValue:number | undefined} | null;
+    chooserAnswers!: ChooserAnswerType[] | null;
+    sliderAnswer!: SliderAnswerType | null;
     resultForChoocsGroup!:{result:string, group:number} | undefined | null; 
 }
 
