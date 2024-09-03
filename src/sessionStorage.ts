@@ -5,7 +5,7 @@ export const  loadFromSessionStorage = <T>(key: string): T | undefined | null =>
     try {
       if (key) {
         let storageData: any = JSON.parse(sessionStorage.getItem(KEY_NAME) || "[]");
-        let value = storageData.find((i:any) => i?.key == key);
+        let value = storageData.find((i:any) => i?.key === key);
         return value ? value.data : undefined;
       }
       return undefined;
@@ -18,10 +18,10 @@ export const  loadFromSessionStorage = <T>(key: string): T | undefined | null =>
     try {
       let x = { key, data };
       let storageData: any = JSON.parse(sessionStorage.getItem(KEY_NAME) || "[]");
-      let isExist = storageData.some((i :any) => i?.key == key);
+      let isExist = storageData.some((i :any) => i?.key === key);
       if (isExist) { //update current value
         storageData.forEach((x :any)=> {
-          if (x?.key == key) {
+          if (x?.key === key) {
             x.data = data;
           }
         });

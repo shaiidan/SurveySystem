@@ -28,7 +28,6 @@ export const getSurveyData  = async () => {
                     queDocId:doc.id
                 } as SurveyQuestion)))?.filter(q => checkQuestion(q)))
             }
-            //return undefined;
             return surveyData;
         }
         else {

@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
@@ -8,8 +10,7 @@ import rtlPlugin from 'stylis-plugin-rtl';
 import createCache from '@emotion/cache';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import DonePage from './App/DonePage';
-import ErrorBoundary from './App/ErrorBoundary';
-import { ErrorContextProvider } from './App/ErrorBoundaryContext';
+
 
 const theme = createTheme({
   direction: 'rtl',
@@ -25,15 +26,28 @@ const cacheRtl = createCache({
 export const router = createBrowserRouter([
   {
     path:"/",
-    element: 
-    <ErrorBoundary><App /></ErrorBoundary>
+    element:
+     // <ErrorBoundary  >
+        <App />
+   //   </ErrorBoundary>
+   
   },
   {
     path:"/done",
-    element:<ErrorBoundary><DonePage  /></ErrorBoundary>
+    element:
+        <DonePage  />
   }
 ]);
 
+// global error
+window.addEventListener("unhandledrejection",(event)=>{
+  event.preventDefault();
+  window.location.href = `/done?type=error&message=${event?.reason?.message}`;
+});
+window.addEventListener('error',(event)=>{
+ event.preventDefault();
+ window.location.href = `/done?type=error&message=${event?.error?.message}`;
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -43,14 +57,13 @@ root.render(
    
   <CacheProvider value={cacheRtl}>
     <ThemeProvider theme={theme}>
-      <ErrorContextProvider>
-        <RouterProvider router={router} />
-      </ErrorContextProvider>
+      <RouterProvider router={router} />
     </ThemeProvider>
   </CacheProvider>
     
   //</React.StrictMode>
-
+// //<ErrorContextProvider>
+      //</ErrorContextProvider>
 );
 
 

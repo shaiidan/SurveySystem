@@ -32,6 +32,7 @@ import Loading from '../components/Loding';
   const [isDonePersonalData,setIsDonePersonalData] = useState<boolean>(false); // if the user finish the pernsoal questions
   const [prevSurveyResults, setPrevSurveyResults] = useState<SurveyResult[]>([]); // results survey
   const [mainSurveyResults, setMainSurveyResults] = useState<SurveyResult[]>([]); // results main survey
+  //const { showBoundary } = useErrorBoundary();
 
   const navigate = useNavigate();
 
@@ -75,7 +76,7 @@ import Loading from '../components/Loding';
         throw new Error("לא מצא סקר");
       } 
     }).catch(error=>{
-      throw new Error("לא מצא סקר");
+      throw error;
     })
 
   }, []);
