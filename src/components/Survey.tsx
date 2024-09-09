@@ -72,7 +72,7 @@ export default function Survey(props :SurveyProps) {
      * @param questionKey 
      * @param answerId 
      */
-    const handleQuestionResult = (questionKey:string, answerId:number | null,answerValue:string | null, timeInMilsecToAnswer:number) =>{
+    const handleQuestionResult = (questionKey:string, answerId:number | null,answerValue:string | null, timeInMilsecToAnswer:number,queURLsOrder:string | null) =>{
         const index = props.questions.findIndex(x=>x.key === questionKey);
         if(index !== -1){
             // handle to chooser question 
@@ -84,6 +84,7 @@ export default function Survey(props :SurveyProps) {
                         value:resultValue,
                         timeToAnswer: timeInMilsecToAnswer * MilToSec
                     };
+                    props.questions[index].queURLsOrder = queURLsOrder;
         
                     // save result to storage
                     saveToSessionStorae<QuestionDataStorage>(`${StorageQuestionResultPrefixKey}${props.questions[index].key}`,{
@@ -140,14 +141,17 @@ export default function Survey(props :SurveyProps) {
          if(props.questions.filter(x=>x.data.isRequire === true && (x.answer === null || x.answer.value === "")).length === 0){
 
             const results :SurveyResult[] = [];
-            props.questions.filter(x=>x.answer !== null && x.answer.value !== "").forEach(question=>{
+            props.questions.filter(x=>x.answer !== null && x.answer.value !== "")
+            .forEach(question=>{
                 if(question.answer?.value) {
                     results.push({
                        // surveyID:question.data.surveyID,
                         queDocId:question.data.queDocId,
                         resultKey: question.answer?.id!,
                         resultValue: question.answer?.value!,
-                        timeToAnswer:question.answer?.timeToAnswer!
+                        timeToAnswer:question.answer?.timeToAnswer!,
+                        queURLsOrder:question.queURLsOrder!,
+                        queOrder:undefined!
                     });
                 }
             });

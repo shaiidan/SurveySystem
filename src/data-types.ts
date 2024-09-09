@@ -33,6 +33,8 @@ export interface QuestionData {
     data:SurveyQuestion;
     bgColor:string | undefined;
     answer: {id:number | null,  value:string, timeToAnswer:number  } | null;
+    queURLsOrder:string | null;
+
 }
 
 export interface QuestionDataStorage {

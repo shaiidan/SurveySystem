@@ -67,7 +67,8 @@ import Loading from '../components/Loding';
             key: x.queDocId,
             bgColor:undefined,
             data: x,
-            answer: null
+            answer: null,
+            queURLsOrder:null
           }]);
         });
         setIsLoading(false);
@@ -165,11 +166,16 @@ import Loading from '../components/Loding';
             x.userDocId = userId;
             return x;
           });
-          const mainREsults = mainSurveyResults.map(x=> {
+          const mainResults = mainSurveyResults.map(x=> {
             x.userDocId = userId;
             return x;
           });
-          const results = [...prevResults, ...mainREsults];
+          // save question order 
+          const results = [...prevResults, ...mainResults].map((currentElement,index)=>{
+            currentElement.queOrder = index + 1 ; // start with 1 not 0
+            return currentElement;
+          });
+          
           saveSurveyResults(surveyDetails.docId, results).then(val=>{
             if(val){
               setIsDisabledDoneSurvey(false);

@@ -7,7 +7,7 @@ import { loadFromSessionStorage } from '../sessionStorage';
 
 interface QuestionComponentProps {
     questionData:QuestionData;
-    handleQuestionResult: (questionKey:string, answerId:number | null,answerValue:string | null, timeInMilsecToAnswer:number) => void;
+    handleQuestionResult: (questionKey:string, answerId:number | null,answerValue:string | null, timeInMilsecToAnswer:number,queURLsOrder:string | null) => void;
 }
   
 
@@ -56,6 +56,8 @@ export default function QuestionComponent(props :QuestionComponentProps) {
                 setValueSlider(props.questionData.data.sliderAnswer?.defaultValue ? props.questionData.data.sliderAnswer.defaultValue : 0);
             }
         }
+        props.questionData.data.URLs =  props.questionData.data.URLs ? props.questionData.data.URLs?.sort((a,b)=> {return 0.5-Math.random()}) : undefined!;
+
        
     },[props.questionData.key]);
 
@@ -69,13 +71,20 @@ export default function QuestionComponent(props :QuestionComponentProps) {
             // handle chooser question result
             if(props.questionData.data.type === QuestionTypeOptions.CHOOSER) {
                 if(resultFormStorage && resultFormStorage.answer?.id === Number(result) ) {
-                    props.handleQuestionResult(resultFormStorage.key,resultFormStorage.answer.id,null, resultFormStorage.answer.timeToAnswer)
+                    props.handleQuestionResult(
+                        resultFormStorage.key,resultFormStorage.answer.id,
+                        null, resultFormStorage.answer.timeToAnswer,
+                        props.questionData.data.URLs?.length > 0 ? 
+                        props.questionData.data.URLs?.map(url => url.id)?.toString() : null
+                    )
                 } else {
                     props.handleQuestionResult(
                         props.questionData.key, 
-                        Number(result),  
+                        Number(result),
                         null,
-                        (new Date(Date.now())).getTime() - startTime.getTime());
+                        (new Date(Date.now())).getTime() - startTime.getTime(),
+                        props.questionData.data.URLs?.length > 0 ? 
+                        props.questionData.data.URLs?.map(url => url.id).toString() : null);
                 }
             }
             // handle slider question result 
@@ -83,13 +92,18 @@ export default function QuestionComponent(props :QuestionComponentProps) {
                 if(resultFormStorage && resultFormStorage.answer?.value && 
                     resultFormStorage.answer?.value !== "" && !isNaN(Number(resultFormStorage.answer?.value)) 
                     && Number(resultFormStorage.answer?.value) === Number(result) ) {
-                    props.handleQuestionResult(resultFormStorage.key,null,resultFormStorage.answer.value, resultFormStorage.answer.timeToAnswer)
+                    props.handleQuestionResult(resultFormStorage.key,null,
+                        resultFormStorage.answer.value, resultFormStorage.answer.timeToAnswer,
+                        props.questionData.data.URLs?.length > 0 ? 
+                        props.questionData.data.URLs?.map(url => url.id).toString() : null)
                 } else {
                     props.handleQuestionResult(
                         props.questionData.key, 
                         null,
                         result,  
-                        (new Date(Date.now())).getTime() - startTime.getTime());
+                        (new Date(Date.now())).getTime() - startTime.getTime(),
+                        props.questionData.data.URLs?.length > 0 ? 
+                        props.questionData.data.URLs?.map(url => url.id).toString() : null);
                 } 
             }
         }

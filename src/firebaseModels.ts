@@ -34,6 +34,8 @@ export class SurveyResult {
     resultKey!:number | null;
     resultValue!:string;
     timeToAnswer!:number;
+    queOrder!:number;
+    queURLsOrder!:string;
 }
 
 // sub colection in survey collection

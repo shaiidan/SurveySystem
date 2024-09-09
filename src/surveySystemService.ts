@@ -145,7 +145,9 @@ export const saveSurveyResults = async (surveyDocId:string, results :SurveyResul
                     userDocId:result.userDocId,
                     resultKey:result.resultKey,
                     resultValue:result.resultValue,
-                    timeToAnswer:result.timeToAnswer
+                    timeToAnswer:result.timeToAnswer,
+                    queOrder:result.queOrder,
+                    queURLsOrder:result.queURLsOrder
                 });
             });
             return true;
