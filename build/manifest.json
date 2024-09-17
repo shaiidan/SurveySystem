@@ -1,8 +1,0 @@
-{
-  "short_name": "Survey System",
-  "name": "iframe react",
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
-}
