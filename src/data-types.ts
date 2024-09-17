@@ -4,7 +4,7 @@ export const StoragePresonalDataKey = "UserDetials";
 export const StorageQuestionResultPrefixKey = "Question_";
 export const StorageSavePrevSurveyKey  = "IsPrevSurveySave";
 export const StorageDoneMainSurveyKey  = "IsMainSurveyDone";
-
+export const StorageUserTypeKey = "UserType";
 
 
 export enum UrlForamtOptions {
@@ -25,6 +25,7 @@ export interface PersonalData {
 export interface SurveyData {
     id:string;
     title:string;
+    countUserType:number;
     questions: SurveyQuestion[];
 }
 
@@ -34,7 +35,6 @@ export interface QuestionData {
     bgColor:string | undefined;
     answer: {id:number | null,  value:string, timeToAnswer:number  } | null;
     queURLsOrder:string | null;
-
 }
 
 export interface QuestionDataStorage {

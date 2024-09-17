@@ -1,6 +1,6 @@
 import React, {useEffect, useState } from 'react';
 import './App.css';
-import { MilToSec, PersonalData, QuestionData, QuestionTypeOptions, StorageDoneMainSurveyKey, StorageSavePrevSurveyKey, StoragePresonalDataKey, StorageQuestionResultPrefixKey } from '../data-types';
+import { MilToSec, PersonalData, QuestionData, QuestionTypeOptions, StorageDoneMainSurveyKey, StorageSavePrevSurveyKey, StoragePresonalDataKey,StorageUserTypeKey } from '../data-types';
 import PersonalForm from '../components/PersonalForm';
 import Survey from '../components/Survey';
 import { SurveyResult } from '../firebaseModels';
@@ -32,7 +32,7 @@ import Loading from '../components/Loding';
   const [isDonePersonalData,setIsDonePersonalData] = useState<boolean>(false); // if the user finish the pernsoal questions
   const [prevSurveyResults, setPrevSurveyResults] = useState<SurveyResult[]>([]); // results survey
   const [mainSurveyResults, setMainSurveyResults] = useState<SurveyResult[]>([]); // results main survey
-  //const { showBoundary } = useErrorBoundary();
+  const [userType,setUserType] = useState<null|number>(null);
 
   const navigate = useNavigate();
 
@@ -41,6 +41,12 @@ import Loading from '../components/Loding';
     */
   React.useEffect(()=>{
     setIsDisabledDoneSurvey(false);
+
+    // load user type
+    const loadUserType = loadFromSessionStorage<number>(StorageUserTypeKey);
+    if(loadUserType !== null &&  loadUserType !== undefined){
+      setUserType(loadUserType);
+    } 
     // load personal data from storage 
     const loadPersonalData = loadFromSessionStorage<PersonalData>(StoragePresonalDataKey);
     if(loadPersonalData) {
@@ -60,6 +66,13 @@ import Loading from '../components/Loding';
         details.docId = data.id;
         details.title = data.title;  
         setSurveyDetails(details);
+
+        // init usertype 
+        if(userType === null || userType === undefined) {
+          const userTypeRandom = Math.floor(Math.random() * data.countUserType) + 1; 
+          setUserType(userTypeRandom);
+          saveToSessionStorae(StorageUserTypeKey, userTypeRandom);
+        }
 
         // init questions 
         data.questions.forEach(x =>{
@@ -88,9 +101,12 @@ import Loading from '../components/Loding';
           undefined && x.data.resultForChoocsGroup !== null  && x.data.resultForChoocsGroup.group !== 0).length > 0) {
       setHaveTwoSurvies(true);
       setQuestionsForPrevSurvey(
-        questions.filter(x=>x.data.group === 0).map(x=>{x.bgColor = 'rgb(227 216 181)'; return x;}).sort((a,b)=> {return 0.5-Math.random()}));
+        questions.filter(x=>x.data.group === 0)
+        .map(x=>{x.bgColor = 'rgb(227 216 181)'; return x;})
+        .sort((a,b)=> {return 0.5-Math.random()}));
     } else {
-      setQuestionsForMainSurvey(questions);
+      setQuestionsForPrevSurvey([]); // init 
+      setQuestionsForMainSurvey(questions.filter(x=>x.data.group === 0 || x.data.userType === userType));
     }
 
   },[questions]);
@@ -103,7 +119,16 @@ import Loading from '../components/Loding';
         getQuestionForMainSurveyByPrev();
       }
     }
-  },[questionsForPrevSurvey])
+  },[questionsForPrevSurvey]);
+
+  // if now question for mian survey so done 
+  useEffect(()=>{
+    if(isPrevSurveyDone &&  questionsForMainSurvey.length === 0 ) {
+      setIsMainSurveyDone(true);
+    }
+  },[questionsForMainSurvey])
+
+
 
   /**
    * save personal Data 
@@ -132,12 +157,28 @@ import Loading from '../components/Loding';
  
     const temp = questionsForPrevSurvey.filter(x=>x.data?.resultForChoocsGroup  && x.data.resultForChoocsGroup?.group !== 0);
     if(temp.length > 0) {
-      if( (temp[0].data.type === QuestionTypeOptions.SILDER &&  temp[0].answer?.value === temp[0].data.resultForChoocsGroup?.result) ||
-          (temp[0].data.type === QuestionTypeOptions.CHOOSER &&  temp[0].answer?.id?.toString() === temp[0].data.resultForChoocsGroup?.result)) {
-       
-            setQuestionsForMainSurvey(questions.filter(x=>x.data.group === temp[0].data.resultForChoocsGroup?.group).sort((a,b)=> {return 0.5-Math.random()}));
+      
+      // skip group for this user type 
+      if(temp[0].data.resultForChoocsGroup?.skipGroupForUserType === userType) {
+        setQuestionsForMainSurvey(
+          questions.filter(x=> x.data.group !== 0 && x.data.userType === userType)
+          .sort((a,b)=> {return 0.5-Math.random()})
+        );
       } else {
-        setQuestionsForMainSurvey(questions.filter(x=>temp[0].data.resultForChoocsGroup?.group !== x.data.group && x.data.group !== 0 )?.sort((a,b)=> {return 0.5-Math.random()}));
+        if( (temp[0].data.type === QuestionTypeOptions.SILDER &&  temp[0].answer?.value === temp[0].data.resultForChoocsGroup?.result) ||
+        (temp[0].data.type === QuestionTypeOptions.CHOOSER &&  temp[0].answer?.id?.toString() === temp[0].data.resultForChoocsGroup?.result)) {
+
+          setQuestionsForMainSurvey(questions.filter(
+            x=>x.data.group === temp[0].data.resultForChoocsGroup?.group 
+            && x.data.group !== 0   && x.data.userType === userType)
+            ?.sort((a,b)=> {return 0.5-Math.random()})
+          );
+        } else {
+          setQuestionsForMainSurvey(questions.filter(
+            x=>temp[0].data.resultForChoocsGroup?.group !== x.data.group 
+            && x.data.group !== 0 && x.data.userType === userType)
+            ?.sort((a,b)=> {return 0.5-Math.random()}));
+        }
       }
     }
     setIsSavePrevSurvy(true);
@@ -147,7 +188,7 @@ import Loading from '../components/Loding';
   /// click on finish to answer all - save to DB 
   const onSendSurvyClicked = () =>{
 
-    if(surveyDetails && surveyDetails.docId && personalData) {
+    if(surveyDetails && surveyDetails.docId && personalData && userType !== undefined && userType !== null) {
       setIsDisabledDoneSurvey(true);
       setIsLoading(true);
       
@@ -157,22 +198,17 @@ import Loading from '../components/Loding';
         city:personalData.city,
         age:personalData.age,
         gender:personalData.gender,
-        education:personalData.education
+        education:personalData.education,
+        userType:userType 
       })
       .then(userId=>{
         // add userId to results
         if(userId) {
-          const prevResults = prevSurveyResults.map(x=> {
-            x.userDocId = userId;
-            return x;
-          });
-          const mainResults = mainSurveyResults.map(x=> {
-            x.userDocId = userId;
-            return x;
-          });
           // save question order 
-          const results = [...prevResults, ...mainResults].map((currentElement,index)=>{
+          const mergeResult = [...prevSurveyResults, ...mainSurveyResults] ; 
+          const results = mergeResult.map((currentElement,index)=>{
             currentElement.queOrder = index + 1 ; // start with 1 not 0
+            currentElement.userDocId = userId;
             return currentElement;
           });
           

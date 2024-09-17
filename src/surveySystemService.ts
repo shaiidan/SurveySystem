@@ -22,6 +22,10 @@ export const getSurveyData  = async () => {
             const questionsData =  await getDocs(collection(db,`${SURVEYS_COLLECTION_NAME}/${querySnapshot.docs[0].id}/${QUESTINONS_SUBCOLLECTION_NAME}`));
             const surveyData :SurveyData = {
                 id:querySnapshot.docs[0].id,
+                countUserType: 
+                querySnapshot.docs[0].data()['countUserType'] !== undefined || 
+                querySnapshot.docs[0].data()['countUserType'] !== null? 
+                querySnapshot.docs[0].data()['countUserType'] as number : 2, 
                 title: querySnapshot.docs[0].data()['title'] as string,
                 questions: getCurrectQuestions(questionsData.docs.map((doc => ({
                     ...doc.data(),
@@ -48,6 +52,12 @@ export const getSurveyData  = async () => {
 const getCurrectQuestions = (questions:SurveyQuestion[]) => {
     const newQuestions:SurveyQuestion[] = [];
     questions.forEach(question =>{
+
+        // default value for isRequire
+        if(question.isRequire === undefined || question.isRequire === null) {
+            question.isRequire = true; 
+        }
+
         // urls
         const newQuestion:SurveyQuestion = structuredClone(question);
         if(question.URLs) {
@@ -89,6 +99,7 @@ const checkQuestion = (question : SurveyQuestion) => {
     if(question.group !== 0 && question.group !== 1 && question.group !== 2 ) return false;
     if(question.resultForChoocsGroup && ((question.resultForChoocsGroup.result === undefined  || question.resultForChoocsGroup.result === null) ||
         (question.resultForChoocsGroup.group !== 1 && question.resultForChoocsGroup.group !== 2))) return false;
+    if(question.group !== 0 && (question.userType === undefined || question.userType === null )) return false;    
     if(question.type !== 1 && question.type !== 2) return false;
     if(question.type === 1 && !question.chooserAnswers) return false;
     if(question.type === 2 && !question.sliderAnswer) return false;
@@ -117,7 +128,8 @@ export const saveUserData = async (surveyDocId:string, userData:SurveyUser) => {
                 city:userData.city,
                 age:userData.age,
                 gender:userData.gender,
-                education:userData.education
+                education:userData.education,
+                userType:userData.userType
             });
 
             return newUser.id; 

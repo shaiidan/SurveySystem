@@ -2,6 +2,7 @@ export class SurveyDetails {
     docId!:string;
     title!:string;
     isActive!:boolean;
+    //countUserType:number; - in SurveyData 
 }
 
 export type UrlType = {
@@ -22,9 +23,10 @@ export class SurveyQuestion {
     group:number = 0;
     isRequire :boolean = true;
     type!:number;
+    userType!:number;
     chooserAnswers!: ChooserAnswerType[] | null;
     sliderAnswer!: SliderAnswerType | null;
-    resultForChoocsGroup!:{result:string, group:number} | undefined | null; 
+    resultForChoocsGroup!:{result:string, group:number, skipGroupForUserType :number | undefined} | undefined | null; 
 }
 
 // sub colection in survey collection
@@ -45,4 +47,5 @@ export class SurveyUser {
     age!:number
     gender!:string
     education!:string
+    userType!:number;
 }
